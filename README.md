@@ -1,6 +1,6 @@
 # Squoosh-Memos
 
-[Squoosh](ttps://github.com/GoogleChromeLabs/squoosh) 是一个强大的图片压缩 Web 应用，支持多种格式的图片压缩和优化。
+[Squoosh](https://github.com/GoogleChromeLabs/squoosh) 是一个强大的图片压缩 Web 应用，支持多种格式的图片压缩和优化。
 
 本项目基于 Squoosh ，添加 Memos 后端 API， 将 压缩-下载，变成 压缩-上传（Memos）
 
