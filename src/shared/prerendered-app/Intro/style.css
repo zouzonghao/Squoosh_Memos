@@ -217,21 +217,21 @@
 }
 
 .info-wave {
-  fill: var(--white);
+  fill: var(--deep-blue);
 }
 
 .footer {
-  background: var(--white);
+  background: var(--deep-blue);
   padding-top: 5em;
 }
 
 .footer-container {
   position: relative;
-  background: var(--light-gray);
+  background: var(--deep-blue);
 }
 
 .footer-wave {
-  fill: var(--light-gray);
+  fill: var(--deep-blue);
 }
 
 .content-padding {
@@ -259,7 +259,7 @@
 
 .footer-link {
   text-decoration: none;
-  color: inherit;
+  color: var(--white);
 }
 
 .footer-link-with-logo {
