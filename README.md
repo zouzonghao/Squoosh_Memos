@@ -1,6 +1,6 @@
 # Squoosh-Memos
 
-[Squoosh]((ttps://github.com/GoogleChromeLabs/squoosh)) 是一个强大的图片压缩 Web 应用，支持多种格式的图片压缩和优化。
+[Squoosh](https://github.com/GoogleChromeLabs/squoosh) 是一个强大的图片压缩 Web 应用，支持多种格式的图片压缩和优化。
 
 本项目基于 Squoosh ，添加 Memos 后端 API， 将 压缩-下载，变成 压缩-上传（Memos）
 
@@ -58,9 +58,12 @@
 2. 打开 [vercel](https://vercel.com/)
 3. 关联 github 账号，并导入本项目
 4. 进行如下设置
-   Build Command -> npm run build
-   Output Directory -> build
-   Install Command -> npm install
+   
+   - Build Command -> npm run build
+   - Output Directory -> build
+   - Install Command -> npm install
+  
+     
 ![vercel_setting](vercel.jpg)
 ## 开发
 
