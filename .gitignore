@@ -1,5 +1,6 @@
 .tmp
 node_modules
+build.zip
 *.scss.d.ts
 *.css.d.ts
 build
