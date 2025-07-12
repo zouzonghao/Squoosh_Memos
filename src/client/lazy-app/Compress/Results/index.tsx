@@ -8,6 +8,8 @@ import prettyBytes from './pretty-bytes';
 import { Arrow, DownloadIcon } from 'client/lazy-app/icons';
 import { memosApiService } from 'shared/memos-api';
 import { settingsManager } from 'shared/settings';
+import InputFileNameModal from '../Options/InputFileNameModal';
+import type SnackBarElement from 'shared/custom-els/snack-bar';
 
 interface Props {
   loading: boolean;
@@ -17,11 +19,16 @@ interface Props {
   flipSide: boolean;
   typeLabel: string;
   showUploadButton?: boolean; // 新增：是否显示上传按钮
+  onRequireMemosSettings?: () => void;
+  showSnack?: SnackBarElement['showSnackbar'];
 }
 
 interface State {
   showLoadingState: boolean;
   uploading: boolean;
+  showFileNameModal: boolean;
+  pendingUploadFileName: string;
+  defaultFileName: string;
 }
 
 const loadingReactionDelay = 500;
@@ -30,6 +37,9 @@ export default class Results extends Component<Props, State> {
   state: State = {
     showLoadingState: this.props.loading,
     uploading: false,
+    showFileNameModal: false,
+    pendingUploadFileName: '',
+    defaultFileName: '',
   };
 
   /** The timeout ID between entering the loading state, and changing UI */
@@ -85,11 +95,29 @@ export default class Results extends Component<Props, State> {
     });
   };
 
-  private onUpload = async () => {
+  private onUpload = () => {
     if (!this.props.imageFile) return;
     const settings = settingsManager.getSettings();
-    if (!settings.memosApiUrl || !settings.memosToken) {
-      alert('请先配置 Memos API 设置！\n点击设置按钮 ⚙️ 进行配置。');
+    const DEFAULT_DOMAIN = 'memos.apidocumentation.com';
+    const DEFAULT_TOKEN = 'your-token-here';
+    const currentDomain = settings.memosApiUrl
+      ? settings.memosApiUrl.replace(/^https?:\/\//, '').replace(/\/api\/v1\/memos$/, '')
+      : '';
+    const currentToken = (settings.memosToken || '').replace(/^Bearer /, '');
+    if (
+      !settings.memosApiUrl ||
+      !settings.memosToken ||
+      currentDomain === DEFAULT_DOMAIN ||
+      currentToken === DEFAULT_TOKEN
+    ) {
+      if (this.props.onRequireMemosSettings) {
+        this.props.onRequireMemosSettings();
+      } else {
+        this.props.showSnack?.('请先配置 Memos API 设置！\n点击设置按钮 ⚙️ 进行配置。', {
+          timeout: 5000,
+          actions: ['知道了'],
+        });
+      }
       return;
     }
     
@@ -118,35 +146,35 @@ export default class Results extends Component<Props, State> {
     
     const extension = getFileExtension(this.props.imageFile);
     
-    // 生成默认文件名（不带后缀）
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
+    // 生成默认文件名（不带后缀）- 直接使用原文件名
     const originalName = this.props.imageFile!.name.replace(/\.[^/.]+$/, '');
-    const defaultFileName = `${year}${month}${day}_${originalName}`;
+    const defaultFileName = originalName;
     
-    // 弹窗让用户输入文件名（不带后缀）
-    let inputFileName = window.prompt(`请输入上传到 Memos 的文件名（无需加后缀 .${extension}，可含中文）：`, defaultFileName);
-    if (!inputFileName) {
-      alert('文件名不能为空！');
-      return;
-    }
-    inputFileName = inputFileName.trim().replace(/\s+/g, '_');
-    // 允许中文、字母、数字、下划线、短横线
-    if (!/^[\u4e00-\u9fa5\w-]+$/.test(inputFileName)) {
-      alert('文件名只能包含中文、字母、数字、下划线和短横线！');
-      return;
-    }
-    const finalFileName = `${inputFileName}.${extension}`;
-    this.setState({ uploading: true });
+    // 显示文件名输入弹窗
+    this.setState({
+      showFileNameModal: true,
+      pendingUploadFileName: extension,
+      defaultFileName,
+    });
+  };
+
+  private handleFileNameConfirm = async (inputFileName: string) => {
+    const finalFileName = `${inputFileName}.${this.state.pendingUploadFileName}`;
+    this.setState({ showFileNameModal: false, uploading: true });
+    
     try {
       const content = `${inputFileName}`;
-      await memosApiService.uploadImage(this.props.imageFile, content, false, finalFileName, 'PUBLIC');
-      alert(`图片上传成功！\n生成新memo: ${inputFileName}`);
+      await memosApiService.uploadImage(this.props.imageFile!, content, false, finalFileName, 'PUBLIC');
+      this.props.showSnack?.(`上传成功！生成新 memo: 《${inputFileName}》`, {
+        timeout: 4000,
+        actions: ['知道了'],
+      });
     } catch (error) {
       console.error('上传到 Memos 失败:', error);
-      alert('上传失败: ' + (error instanceof Error ? error.message : '未知错误'));
+      this.props.showSnack?.('上传失败: ' + (error instanceof Error ? error.message : '未知错误'), {
+        timeout: 6000,
+        actions: ['知道了'],
+      });
     } finally {
       this.setState({ uploading: false });
     }
@@ -154,7 +182,7 @@ export default class Results extends Component<Props, State> {
 
   render(
     { source, imageFile, downloadUrl, flipSide, typeLabel, showUploadButton }: Props,
-    { showLoadingState }: State,
+    { showLoadingState, showFileNameModal, defaultFileName, pendingUploadFileName }: State,
   ) {
     const prettySize = imageFile && prettyBytes(imageFile.size);
     const isOriginal = !source || !imageFile || source.file === imageFile;
@@ -229,6 +257,15 @@ export default class Results extends Component<Props, State> {
             <span>上传中...</span>
           </div>
         )}
+        
+        {/* 文件名输入弹窗 */}
+        <InputFileNameModal
+          open={showFileNameModal}
+          defaultFileName={defaultFileName}
+          extension={pendingUploadFileName}
+          onConfirm={this.handleFileNameConfirm}
+          onClose={() => this.setState({ showFileNameModal: false })}
+        />
       </div>
     );
   }

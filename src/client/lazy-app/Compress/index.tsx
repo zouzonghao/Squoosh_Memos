@@ -34,6 +34,7 @@ import type SnackBarElement from 'shared/custom-els/snack-bar';
 import { drawableToImageData } from '../util/canvas';
 import { memosApiService } from 'shared/memos-api';
 import { settingsManager } from 'shared/settings';
+import MemosSettingsModal from './Options/MemosSettingsModal';
 
 export type OutputType = EncoderType | 'identity';
 
@@ -73,6 +74,9 @@ interface State {
   mobileView: boolean;
   preprocessorState: PreprocessorState;
   encodedPreprocessorState?: PreprocessorState;
+  showMemosModal: boolean;
+  memosApiUrl: string;
+  memosToken: string;
 }
 
 interface MainJob {
@@ -317,6 +321,9 @@ export default class Compress extends Component<Props, State> {
           },
     ],
     mobileView: this.widthQuery.matches,
+    showMemosModal: false,
+    memosApiUrl: '',
+    memosToken: '',
   };
 
   private readonly encodeCache = new ResultCache();
@@ -592,6 +599,33 @@ export default class Compress extends Component<Props, State> {
   private activeMainJob?: MainJob;
   /** The in-progress job for each side (processing and encoding) */
   private activeSideJobs: [SideJob?, SideJob?] = [undefined, undefined];
+
+  private openMemosModal = () => {
+    const settings = settingsManager.getSettings();
+    this.setState({
+      showMemosModal: true,
+      memosApiUrl: settings.memosApiUrl || '',
+      memosToken: (settings.memosToken || '').replace(/^Bearer /, ''),
+    });
+  };
+
+  private handleMemosModalSave = (domain: string, token: string) => {
+    const url = domain.trim().replace(/^https?:\/\//, '').replace(/\/$/, '');
+    const fullApiUrl = `https://${url}/api/v1/memos`;
+    const fullToken = token.trim() ? `Bearer ${token.trim()}` : '';
+    settingsManager.updateSettings({
+      memosApiUrl: fullApiUrl,
+      memosToken: fullToken,
+    });
+    this.setState({ showMemosModal: false });
+    if (typeof this.props.showSnack === 'function') {
+      this.props.showSnack('设置已保存！', { timeout: 1800, actions: ['知道了'] });
+    }
+  };
+
+  private handleMemosModalClose = () => {
+    this.setState({ showMemosModal: false });
+  };
 
   /**
    * Perform image processing.
@@ -942,6 +976,7 @@ export default class Compress extends Component<Props, State> {
         onCopyToOtherSideClick={this.onCopyToOtherClick}
         onSaveSideSettingsClick={this.onSaveSideSettingsClick}
         onImportSideSettingsClick={this.onImportSideSettingsClick}
+        showSnack={this.props.showSnack}
       />
     ));
 
@@ -960,6 +995,8 @@ export default class Compress extends Component<Props, State> {
         showUploadButton={
           index === 1 // 只在右边显示上传按钮
         }
+        onRequireMemosSettings={this.openMemosModal}
+        showSnack={this.props.showSnack}
       />
     ));
 
@@ -978,6 +1015,13 @@ export default class Compress extends Component<Props, State> {
 
     return (
       <div class={style.compress}>
+        <MemosSettingsModal
+          open={this.state.showMemosModal}
+          defaultUrl={this.state.memosApiUrl || ''}
+          defaultToken={this.state.memosToken || ''}
+          onSave={this.handleMemosModalSave}
+          onClose={this.handleMemosModalClose}
+        />
         <Output
           source={source}
           mobileView={mobileView}

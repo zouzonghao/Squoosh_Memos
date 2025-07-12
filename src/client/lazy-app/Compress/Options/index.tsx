@@ -1,4 +1,5 @@
 import { h, Component } from 'preact';
+import { useState } from 'preact/hooks';
 
 import * as style from './style.css';
 import 'add-css:./style.css';
@@ -19,6 +20,7 @@ import { Options as QuantOptionsComponent } from 'features/processors/quantize/c
 import { Options as ResizeOptionsComponent } from 'features/processors/resize/client';
 import { ImportIcon, SaveIcon, SwapIcon } from 'client/lazy-app/icons';
 import { settingsManager } from 'shared/settings';
+import MemosSettingsModal from './MemosSettingsModal';
 
 interface Props {
   index: 0 | 1;
@@ -32,12 +34,16 @@ interface Props {
   onCopyToOtherSideClick(index: 0 | 1): void;
   onSaveSideSettingsClick(index: 0 | 1): void;
   onImportSideSettingsClick(index: 0 | 1): void;
+  showSnack: (message: string, options?: { timeout?: number; actions?: string[] }) => void;
 }
 
 interface State {
   supportedEncoderMap?: PartialButNotUndefined<typeof encoderMap>;
   leftSideSettings?: string | null;
   rightSideSettings?: string | null;
+  showMemosModal: boolean;
+  memosApiUrl: string;
+  memosToken: string;
 }
 
 type PartialButNotUndefined<T> = {
@@ -67,6 +73,9 @@ export default class Options extends Component<Props, State> {
     supportedEncoderMap: undefined,
     leftSideSettings: localStorage.getItem('leftSideSettings'),
     rightSideSettings: localStorage.getItem('rightSideSettings'),
+    showMemosModal: false,
+    memosApiUrl: '',
+    memosToken: '',
   };
 
   constructor() {
@@ -74,6 +83,15 @@ export default class Options extends Component<Props, State> {
     supportedEncoderMapP.then((supportedEncoderMap) =>
       this.setState({ supportedEncoderMap }),
     );
+  }
+
+  componentWillMount() {
+    // 初始化弹窗默认值
+    const settings = settingsManager.getSettings();
+    this.setState({
+      memosApiUrl: settings.memosApiUrl || '',
+      memosToken: (settings.memosToken || '').replace(/^Bearer /, ''),
+    });
   }
 
   private setLeftSideSettings = () => {
@@ -150,41 +168,31 @@ export default class Options extends Component<Props, State> {
 
   private onSettingsClick = () => {
     const settings = settingsManager.getSettings();
-    
-    // 从完整 API 地址中提取域名部分用于显示
-    let currentDomain = '';
-    if (settings.memosApiUrl) {
-      try {
-        const url = new URL(settings.memosApiUrl);
-        currentDomain = url.hostname;
-      } catch (e) {
-        // 如果解析失败，尝试直接提取域名部分
-        currentDomain = settings.memosApiUrl.replace(/^https?:\/\//, '').replace(/\/api\/v1\/memos?$/, '');
-      }
+    this.setState({
+      showMemosModal: true,
+      memosApiUrl: settings.memosApiUrl || '',
+      memosToken: (settings.memosToken || '').replace(/^Bearer /, ''),
+    });
+  };
+
+  private handleMemosModalSave = (domain: string, token: string) => {
+    // 自动拼接完整 API 地址
+    const url = domain.trim().replace(/^https?:\/\//, '').replace(/\/$/, '');
+    const fullApiUrl = `https://${url}/api/v1/memos`;
+    // 自动添加 Bearer 前缀
+    const fullToken = token.trim() ? `Bearer ${token.trim()}` : '';
+    settingsManager.updateSettings({
+      memosApiUrl: fullApiUrl,
+      memosToken: fullToken,
+    });
+    this.setState({ showMemosModal: false });
+    if (typeof this.props.showSnack === 'function') {
+      this.props.showSnack('设置已保存！', { timeout: 1800, actions: ['知道了'] });
     }
-    
-    // 从完整 token 中提取纯 token 部分用于显示
-    let currentToken = settings.memosToken || '';
-    if (currentToken.startsWith('Bearer ')) {
-      currentToken = currentToken.substring(7);
-    }
-    
-    const newDomain = prompt('请输入 Memos 域名（如：memos.apidocumentation.com）:', currentDomain);
-    if (newDomain !== null) {
-      const newToken = prompt('请输入 Memos Token（无需加 Bearer 前缀）:', currentToken);
-      if (newToken !== null) {
-        // 自动拼接完整的 API 地址
-        const fullApiUrl = `https://${newDomain.replace(/^https?:\/\//, '')}/api/v1/memos`;
-        // 自动添加 Bearer 前缀
-        const fullToken = newToken.trim() ? `Bearer ${newToken.trim()}` : '';
-        
-        settingsManager.updateSettings({
-          memosApiUrl: fullApiUrl,
-          memosToken: fullToken
-        });
-        alert('设置已保存！');
-      }
-    }
+  };
+
+  private handleMemosModalClose = () => {
+    this.setState({ showMemosModal: false });
   };
 
   render(
@@ -203,6 +211,13 @@ export default class Options extends Component<Props, State> {
           (encoderState ? '' : style.originalImage)
         }
       >
+        <MemosSettingsModal
+          open={this.state.showMemosModal}
+          defaultUrl={this.state.memosApiUrl || ''}
+          defaultToken={this.state.memosToken || ''}
+          onSave={this.handleMemosModalSave}
+          onClose={this.handleMemosModalClose}
+        />
         <Expander>
           {!encoderState ? null : (
             <div>
