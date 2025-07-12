@@ -165,7 +165,7 @@ export default class Results extends Component<Props, State> {
     try {
       const content = `${inputFileName}`;
       await memosApiService.uploadImage(this.props.imageFile!, content, false, finalFileName, 'PUBLIC');
-      this.props.showSnack?.(`上传成功！生成新 memo: 《${inputFileName}》`, {
+      this.props.showSnack?.(`上传成功！生成新 memo: 《 ${inputFileName} 》`, {
         timeout: 4000,
         actions: ['知道了'],
       });
