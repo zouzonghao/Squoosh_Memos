@@ -166,7 +166,7 @@ export class Options extends Component<Props, State> {
             value={determineLosslessQuality(options.quality, options.method)}
             onInput={this.onChange}
           >
-            Effort:
+            算法等级:
           </Range>
         </div>
         <div class={style.optionOneCell}>
@@ -210,7 +210,7 @@ export class Options extends Component<Props, State> {
             value={options.method}
             onInput={this.onChange}
           >
-            Effort:
+            算法等级:
           </Range>
         </div>
         <div class={style.optionOneCell}>
@@ -230,7 +230,7 @@ export class Options extends Component<Props, State> {
             checked={showAdvanced}
             onChange={linkState(this, 'showAdvanced')}
           />
-          Advanced settings
+          高级设置
         </label>
         <Expander>
           {showAdvanced ? (

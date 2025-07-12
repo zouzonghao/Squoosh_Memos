@@ -104,7 +104,15 @@ export default class Results extends Component<Props, State> {
         case 'image/jxl': return 'jxl';
         case 'image/webp2': return 'wp2';
         case 'image/qoi': return 'qoi';
-        default: return 'bin';
+        default: {
+          // 对于未知类型，尝试从文件名中提取扩展名
+          const fileName = file.name;
+          const lastDotIndex = fileName.lastIndexOf('.');
+          if (lastDotIndex > 0) {
+            return fileName.substring(lastDotIndex + 1).toLowerCase();
+          }
+          return 'bin';
+        }
       }
     };
     

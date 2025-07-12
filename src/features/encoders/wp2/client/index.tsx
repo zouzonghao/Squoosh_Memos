@@ -218,7 +218,7 @@ export class Options extends Component<Props, State> {
                   checked={showAdvanced}
                   onChange={linkState(this, 'showAdvanced')}
                 />
-                Advanced settings
+                高级设置
               </label>
               <Expander>
                 {showAdvanced && (
@@ -303,7 +303,7 @@ export class Options extends Component<Props, State> {
             value={effort}
             onInput={this._inputChange('effort', 'number')}
           >
-            Effort:
+            算法等级:
           </Range>
         </div>
       </form>

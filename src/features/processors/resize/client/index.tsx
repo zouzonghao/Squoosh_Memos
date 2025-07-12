@@ -232,7 +232,7 @@ export class Options extends Component<Props, State> {
         onSubmit={preventDefault}
       >
         <label class={style.optionTextFirst}>
-          Method:
+          方法:
           <Select
             name="resizeMethod"
             value={options.method}
@@ -251,7 +251,7 @@ export class Options extends Component<Props, State> {
           </Select>
         </label>
         <label class={style.optionTextFirst}>
-          Preset:
+          预设:
           <Select value={this.getPreset()} onChange={this.onPresetChange}>
             {sizePresets.map((preset) => (
               <option value={preset}>{preset * 100}%</option>
@@ -260,7 +260,7 @@ export class Options extends Component<Props, State> {
           </Select>
         </label>
         <label class={style.optionTextFirst}>
-          Width:
+          宽度:
           <input
             required
             class={style.textField}
@@ -272,7 +272,7 @@ export class Options extends Component<Props, State> {
           />
         </label>
         <label class={style.optionTextFirst}>
-          Height:
+          高度:
           <input
             required
             class={style.textField}
@@ -286,7 +286,7 @@ export class Options extends Component<Props, State> {
         <Expander>
           {isWorkerOptions(options) ? (
             <label class={style.optionToggle}>
-              Premultiply alpha channel
+              预乘Alpha通道
               <Checkbox
                 name="premultiply"
                 checked={options.premultiply}
@@ -296,7 +296,7 @@ export class Options extends Component<Props, State> {
           ) : null}
           {isWorkerOptions(options) ? (
             <label class={style.optionToggle}>
-              Linear RGB
+              线性 RGB
               <Checkbox
                 name="linearRGB"
                 checked={options.linearRGB}
@@ -306,7 +306,7 @@ export class Options extends Component<Props, State> {
           ) : null}
         </Expander>
         <label class={style.optionToggle}>
-          Maintain aspect ratio
+          保持宽高比 
           <Checkbox
             name="maintainAspect"
             checked={maintainAspect}

@@ -958,8 +958,7 @@ export default class Compress extends Component<Props, State> {
             : `${side.file ? `${side.file.name}` : 'Original Image'}`
         }
         showUploadButton={
-          index === 1 && // 只在右边
-          !!side.latestSettings.encoderState // 且选择了编码格式（不是原始图片）
+          index === 1 // 只在右边显示上传按钮
         }
       />
     ));

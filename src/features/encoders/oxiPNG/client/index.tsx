@@ -54,7 +54,7 @@ export class Options extends Component<Props, {}> {
             value={options.level}
             onInput={this.onChange}
           >
-            Effort:
+            算法等级:
           </Range>
         </div>
       </form>

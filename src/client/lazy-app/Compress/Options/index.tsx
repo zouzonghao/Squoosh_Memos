@@ -208,7 +208,7 @@ export default class Options extends Component<Props, State> {
             <div>
               <h3 class={style.optionsTitle}>
                 <div class={style.titleAndButtons}>
-                  Edit
+                  图片编辑
                   <button
                     class={style.copyOverButton}
                     title="Copy settings to other side"
@@ -251,12 +251,12 @@ export default class Options extends Component<Props, State> {
                     title="Memos 设置"
                     onClick={this.onSettingsClick}
                   >
-                    ⚙️
+                    ⚙️API
                   </button>
                 </div>
               </h3>
               <label class={style.sectionEnabler}>
-                Resize
+                调整图片大小
                 <Toggle
                   name="resize.enable"
                   checked={!!processorState.resize.enabled}
@@ -276,7 +276,7 @@ export default class Options extends Component<Props, State> {
               </Expander>
 
               <label class={style.sectionEnabler}>
-                Reduce palette
+              减少颜色数量
                 <Toggle
                   name="quantize.enable"
                   checked={!!processorState.quantize.enabled}
