@@ -27,10 +27,10 @@ interface Props {}
 const Index: FunctionalComponent<Props> = () => (
   <html lang="en">
     <head>
-      <title>Squoosh</title>
+      <title>Squoosh-Memos</title>
       <meta
         name="description"
-        content="Squoosh is the ultimate image optimizer that allows you to compress and compare images with different codecs in your browser."
+        content="Squoosh-Memos 用于在浏览器中压缩和比较图片, 通过 Memos 的 API 将压缩后的图片上传到 Memos。"
       />
       <meta name="twitter:card" content="summary" />
       <meta name="twitter:site" content="@SquooshApp" />
@@ -50,7 +50,7 @@ const Index: FunctionalComponent<Props> = () => (
       />
       <meta
         name="og:description"
-        content="Squoosh is the ultimate image optimizer that allows you to compress and compare images with different codecs in your browser."
+        content="Squoosh-Memos 用于在浏览器中压缩和比较图片, 通过 Memos 的 API 将压缩后的图片上传到 Memos。"
       />
       <meta
         name="viewport"
