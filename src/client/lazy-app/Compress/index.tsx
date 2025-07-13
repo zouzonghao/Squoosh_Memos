@@ -990,7 +990,7 @@ export default class Compress extends Component<Props, State> {
         typeLabel={
           side.latestSettings.encoderState
             ? encoderMap[side.latestSettings.encoderState.type].meta.label
-            : `${side.file ? `${side.file.name}` : 'Original Image'}`
+            : (side.file ? side.file.type.replace('image/', '').toUpperCase() : 'Original')
         }
         showUploadButton={
           index === 1 // 只在右边显示上传按钮

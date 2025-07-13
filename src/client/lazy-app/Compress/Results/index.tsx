@@ -158,13 +158,12 @@ export default class Results extends Component<Props, State> {
     });
   };
 
-  private handleFileNameConfirm = async (inputFileName: string) => {
+  private handleFileNameConfirm = async (inputFileName: string, content: string, visibility: 'PRIVATE' | 'PUBLIC') => {
     const finalFileName = `${inputFileName}.${this.state.pendingUploadFileName}`;
     this.setState({ showFileNameModal: false, uploading: true });
     
     try {
-      const content = `${inputFileName}`;
-      await memosApiService.uploadImage(this.props.imageFile!, content, false, finalFileName, 'PUBLIC');
+      await memosApiService.uploadImage(this.props.imageFile!, content, false, finalFileName, visibility);
       this.props.showSnack?.(`上传成功！生成新 memo: 《 ${inputFileName} 》`, {
         timeout: 4000,
         actions: ['知道了'],
@@ -241,15 +240,20 @@ export default class Results extends Component<Props, State> {
             </div>
           </div>
         </div>
+        {/* 下载/上传按钮 */}
         <button
           class={showLoadingState ? style.downloadDisable : style.download}
           disabled={this.state.uploading || showLoadingState}
           onClick={showUploadButton ? this.onUpload : this.onDownload}
         >
-          <div class={style.downloadIcon}>
-            <DownloadIcon />
-          </div>
-          {this.state.uploading ? <loading-spinner /> : (showUploadButton ? '上传到 Memos' : '下载')}
+          {/* 背景鹅卵石SVG */}
+          <svg class={style.downloadBlobs} viewBox="0 0 89.6 86.9" aria-hidden="true">
+            <path d="M27.3 72c-8-4-15.6-12.3-16.9-21-1.2-8.7 4-17.8 10.5-26s14.4-15.6 24-16 21.2 6 28.6 16.5c7.4 10.5 10.8 25 6.6 34S64.1 71.8 54 73.6c-10.2 2-18.7 2.3-26.7-1.6z" />
+            <path d="M19.8 24.8c4.3-7.8 13-15 21.8-15.7 8.7-.8 17.5 4.8 25.4 11.8 7.8 6.9 14.8 15.2 14.7 24.9s-7.1 20.7-18 27.6c-10.8 6.8-25.5 9.5-34.2 4.8S18.1 61.6 16.7 51.4c-1.3-10.3-1.3-18.8 3-26.6z" />
+          </svg>
+          <span class={style.downloadContent}>
+            <span class={style.downloadText}>{this.state.uploading ? <loading-spinner /> : (showUploadButton ? '上传' : '下载')}</span>
+          </span>
         </button>
         {this.state.uploading && (
           <div class={style.uploadStatus}>
@@ -257,7 +261,7 @@ export default class Results extends Component<Props, State> {
             <span>上传中...</span>
           </div>
         )}
-        
+
         {/* 文件名输入弹窗 */}
         <InputFileNameModal
           open={showFileNameModal}

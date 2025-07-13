@@ -67,6 +67,10 @@
 }
 
 .file-size {
+  max-width: 8em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .bubble {
@@ -218,26 +222,89 @@
   grid-column: download;
   margin: calc(var(--download-overflow-size) / -2) 0;
   margin-right: calc(var(--download-overflow-size) / -3);
-  display: flex;
-  flex-direction: column;
+  display: grid;
   align-items: center;
-  justify-content: center;
+  justify-items: center;
   align-self: center;
-  background: var(--main-theme-color);
+  background: transparent;
   color: #fff;
   border: none;
-  border-radius: 50%;
+  /* border-radius: 50%;  // 移除圆形 */
   box-shadow: none;
   font-size: 1.1em;
   cursor: pointer;
   transition: background 0.2s;
+  overflow: visible;
 }
+
+.downloadBlobs {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+.downloadBlobs path {
+  /* 蓝色主色更深，红色主色更深，支持主题变量 */
+  fill: var(--main-theme-color, #3490d3);
+  opacity: 0.85;
+}
+.is-original .downloadBlobs path {
+  fill: var(--hot-theme-color, #a0083e);
+  opacity: 0.85;
+}
+.download:hover .downloadBlobs path {
+  filter: brightness(0.7);
+  opacity: 1;
+}
+.download-icon {
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  grid-area: 1 / 1;
+}
+.download-icon svg {
+  --size: 19px;
+  width: var(--size);
+  height: var(--size);
+  fill: var(--white);
+  display: block;
+  position: relative;
+  top: 3px;
+  left: 1px;
+  animation: action-enter 0.2s;
+}
+.downloadText {
+  z-index: 1;
+  font-size: 1.2em;
+  color: #fff;
+  margin-top: 0.2em;
+  grid-area: 1 / 1;
+  text-align: center;
+  transition: color 0.1s;
+}
+.download:hover .downloadText {
+  color: #222;
+}
+
+.download:hover .downloadBlobs path {
+  filter: brightness(0.85);
+  opacity: 0.9;
+}
+
 .download:hover {
-  background: var(--hot-theme-color);
+  background: transparent;
 }
 .download:active {
-  background: var(--main-theme-color);
-  filter: brightness(0.95);
+  background: transparent;
+}
+.download:active .downloadBlobs path {
+  filter: brightness(0.5) drop-shadow(0 0 8px #222);
+  transform: scale(1.07);
+  transition: filter 0.15s, transform 0.15s;
 }
 .download-icon {
   margin-bottom: 0.2em;
@@ -363,4 +430,15 @@
     color: var(--white);
     font-size: 0.9em;
   }
+}
+
+.downloadContent {
+  z-index: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
